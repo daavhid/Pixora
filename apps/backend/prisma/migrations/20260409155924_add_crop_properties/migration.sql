@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "postMedia" ADD COLUMN     "aspect" DOUBLE PRECISION,
+ADD COLUMN     "x" INTEGER,
+ADD COLUMN     "y" INTEGER;
