@@ -20,7 +20,7 @@ export const conversationSchema = z.object({
     lastMessage:z.object({
         id:z.string(),
         content:z.string(),
-        createdAt:z.string(),
+        createdAt:z.coerce.date(),
         senderId:z.string(),
     }).nullable().optional()
 })
