@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConversationsService } from "./conversations.service";
 import { Ctx, Input, Mutation, Query, Router, UseMiddlewares } from "nestjs-trpc";
-import { type CreateMessage, createMessageSchema, createToggleConversationRequestSchema, infiniteMessageSchema, type MessageQuery, messageQuerySchema, messageSchema,type ToggleConversationRequest } from "./schema/conversation.zod.schema";
+import { conversationSchema, type CreateMessage, createMessageSchema, createToggleConversationRequestSchema, infiniteMessageSchema, type MessageQuery, messageQuerySchema, messageSchema,type ToggleConversationRequest } from "./schema/conversation.zod.schema";
 import type { TRPCAuthContextType } from "../../types/auth/context.type";
 import z from "zod";
 import { TRPCAuthMiddleware } from "@/auth/auth.trpc.middleware";
@@ -10,6 +10,13 @@ import { TRPCAuthMiddleware } from "@/auth/auth.trpc.middleware";
 @Router({alias:"conversation"})
 export class ConversationRouter {
     constructor(private conversationService:ConversationsService){}
+
+    @Query({
+        output:conversationSchema
+    })
+    async getConversations(@Ctx() {user}:TRPCAuthContextType){
+        return this.conversationService.getConversations(user.id)
+    }
 
     @Mutation({
         input:createMessageSchema,
