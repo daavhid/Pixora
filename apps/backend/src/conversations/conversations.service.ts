@@ -37,6 +37,39 @@ export class ConversationsService {
 
     }
 
+    async getConversations(currentUserId:string):Promise<Conversation[]>{
+        const conversations = await this.prismaService.conversation.findMany({
+            where:{
+                conversationParticipants:{
+                    some:{
+                        userId:currentUserId
+                    }
+                }
+            },
+            select:{
+                id:true,
+                type:true,
+                avatarUrl:true,
+                title:true,
+                conversationParticipants:{
+                    select:{
+                        id:true
+                    }
+                },
+                status:true,
+                lastMessage:{
+                    select:{
+                        id:true,
+                        content:true,
+                        senderId:true,
+                        createdAt:true
+                    }
+                }
+            }
+        })
+        return conversations
+    }
+
     async sendMessage({ content,conversation,messageAttachments}:CreateMessage,userId:string):Promise<Message> {
 
         if(!content && messageAttachments.length===0){
