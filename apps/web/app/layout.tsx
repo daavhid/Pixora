@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Geist, Inter, Manrope, Montserrat, Poppins } from "next/font/google";
 import { cn } from "@/lib/utils";
-import SidebarDesktop from "@/components/sidebars/SidebarDesktop";
+
 import { TrpcProvider } from "@/context/trpc/trpcProvider";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
@@ -50,10 +50,7 @@ export default function RootLayout({
     <html lang="en" className={cn(`${poppins.className} font-sans` )}>
       <body className={`    scroll-smooth bg-[#0A0A0C] text-white`}>
         <TrpcProvider>
-            <SidebarDesktop/>
-            <div className="ml-64">
               {children}
-            </div>
         </TrpcProvider>
         
 
