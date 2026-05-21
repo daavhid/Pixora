@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export function proxy(req:NextRequest){
     const authRoute = ['/login','/signup']
-    const protectedRoute = ['/profile']
+    const protectedRoute = ['/profile','/messages']
 
     const {pathname} = req.nextUrl
 
