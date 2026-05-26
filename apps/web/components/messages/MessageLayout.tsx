@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useTRPC } from '@/utils/trpc'
 import { useUser } from '@/hooks/useUser'
@@ -14,6 +14,7 @@ import ConversationList from './ConversationList'
 import ConversationMessages from './ConversationMessage'
 import NewConversationDialog from './NewConversationDialog'
 import PreConversationDialog, { PreConversationUser } from './PreConversationDialog'
+import { useSearchParams } from 'next/navigation'
 
 // ─── No selection state ───────────────────────────────────────────────────────
 const NoConversationSelected = () => (
@@ -129,6 +130,12 @@ const MessageLayout = () => {
     : conversations
 
   const activeConversation = conversations.find((c) => c.id === activeConversationId)
+
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    const cid = searchParams?.get?.('conversationId')
+    if (cid) setActiveConversationId(cid)
+  }, [searchParams?.toString()])
 
   return (
     <div className="grid h-screen grid-cols-12 overflow-hidden bg-[#09090C]">
