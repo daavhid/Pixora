@@ -10,6 +10,7 @@ import ShowFollow from './ShowFollow'
 import { CldImage } from 'next-cloudinary'
 import PreConversationDialog, { PreConversationUser } from '../messages/PreConversationDialog'
 import { LuMessageSquare } from 'react-icons/lu'
+import { useRouter } from 'next/navigation'
 
 const ProfileHeader = ({ user }: { user: UserProfile }) => {
   const [open, setOpen]                           = React.useState(false)
@@ -18,6 +19,8 @@ const ProfileHeader = ({ user }: { user: UserProfile }) => {
   const [openPreConvoDialog, setOpenPreConvoDialog] = React.useState(false)
   const [selectedRecipient, setSelectedRecipient] = React.useState<PreConversationUser | null>(null)
   const [followName, setFollowName]               = React.useState<'followers' | 'following'>('followers')
+
+  const router = useRouter()
 
   const showFollow = (name: 'following' | 'followers') => {
     setOpenFollowDialog(true)
@@ -162,6 +165,10 @@ const ProfileHeader = ({ user }: { user: UserProfile }) => {
           recipient={selectedRecipient}
           onBack={() => {
             setOpenPreConvoDialog(false)
+          }}
+          onConversationReady={(conversationId) => {
+            // navigate to messages and include conversation id so MessageLayout opens it
+            router.push(`/messages?conversationId=${conversationId}`)
           }}
         />
       )}
