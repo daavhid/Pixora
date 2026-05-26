@@ -6,8 +6,9 @@ import { cn } from '@/lib/utils'
 import { z } from 'zod'
 import { conversationSchema } from '../../../backend/src/conversations/schema/conversation.zod.schema'
 // import { conversationSchema } from '@/schemas/conversation'
+import {Conversation} from '@repo/trpc/conversation'
 
-type Conversation = z.infer<typeof conversationSchema>
+// type Conversation = z.infer<typeof conversationSchema>
 
 type ConversationListProps = {
   conversations: Conversation[]
@@ -23,6 +24,7 @@ const ConversationList = ({
   return (
     <div className="flex flex-col gap-2 p-3">
       {conversations.map((conversation) => {
+        console.log(conversation,'this is the conv')
         const isActive =
           activeConversationId === conversation.id
 
@@ -38,26 +40,36 @@ const ConversationList = ({
             )}
           >
             {/* Avatar */}
-            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full">
-              <CldImage
-                src={
-                  conversation.avatarUrl ||
-                  'https://i.pravatar.cc/150'
-                }
-                alt={
-                  conversation.title ||
-                  'Conversation Avatar'
-                }
-                fill
-                className="object-cover"
-              />
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-white/10 shadow-inner bg-[#17171C]">
+              {conversation.conversationParticipants[0]?.user.image || conversation.avatarUrl ? (
+                <CldImage
+                  src={
+                    conversation.conversationParticipants[0]!.user.image! ||
+                    conversation.avatarUrl!
+                  }
+                  alt={
+                    conversation.title ||
+                    conversation.conversationParticipants[0]!.user.name!
+                  }
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-[#7849FB]/10 flex items-center justify-center select-none">
+                  <span className="text-xl font-bold text-[#9D7BFF] tracking-wider">
+                    {(conversation.title || conversation.conversationParticipants[0]?.user.name || '?')
+                      .charAt(0)
+                      .toUpperCase()}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Content */}
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="truncate text-sm font-semibold text-white md:text-base">
-                  {conversation.title || 'Unknown User'}
+                  {conversation.title ?? conversation.conversationParticipants[0]!.user.name}
                 </h3>
 
                 {conversation.lastMessage && (

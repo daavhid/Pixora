@@ -13,12 +13,20 @@ import { z } from "zod";
 
 const t = initTRPC.create();
 const publicProcedure = t.procedure;
-import { createMessageSchema, messageSchema, messageQuerySchema, infiniteMessageSchema, createToggleConversationRequestSchema } from "../conversations/schema/conversation.zod.schema";
+import { conversationQuerySchema, InfiniteConversationSchema, getConversationSchema, createMessageSchema, messageSchema, messageQuerySchema, infiniteMessageSchema, createToggleConversationRequestSchema } from "../conversations/schema/conversation.zod.schema";
 import { createPostSchema, postSchema, postPaginationQuerySchema, postInfiniteScrollSchemaQuery, savedPostInfiniteScrollSchema, createCommentSchema, commentSchema, commentPaginationQuerySchema, commentInfiniteScrollSchema } from "../post/schema/post.zod.schema";
 import { UserSchema, UserProfileQuerySchema, UserPaginationQuerySchema, FollowersInfiniteScrollSchema, usersInfiniteScrollSchema, FollowingInfiniteScrollSchema, storySchema, addStorySchema } from "../user/schema/user.zod.schema";
 
 const appRouter = t.router({
   conversation: t.router({
+    getConversations: publicProcedure
+      .input(conversationQuerySchema)
+      .output(InfiniteConversationSchema)
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    getConversation: publicProcedure
+      .input(getConversationSchema)
+      .output(z.boolean())
+      .query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
     sendMessage: publicProcedure
       .input(createMessageSchema)
       .output(messageSchema)

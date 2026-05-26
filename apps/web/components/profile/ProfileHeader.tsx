@@ -6,37 +6,22 @@ import { Button } from '../ui/button'
 import { UserProfile } from '@repo/trpc/user'
 import { formatCount } from '@/utils/formatCount'
 import { EditProfileDialog } from './EditProfileDialog'
-import { useTRPC } from '@/utils/trpc'
-import { useInfiniteQuery } from '@tanstack/react-query'
 import ShowFollow from './ShowFollow'
 import { CldImage } from 'next-cloudinary'
+import PreConversationDialog, { PreConversationUser } from '../messages/PreConversationDialog'
+import { LuMessageSquare } from 'react-icons/lu'
 
 const ProfileHeader = ({ user }: { user: UserProfile }) => {
-  const [open, setOpen] = React.useState(false)
-  const [openfollowDialog, setOpenFollowDialog] = React.useState(false)
-  const [followName, setFollowName] = React.useState<
-    'followers' | 'following'
-  >('followers')
+  const [open, setOpen]                           = React.useState(false)
+  const [openFollowDialog, setOpenFollowDialog]   = React.useState(false)
+  const [openMessageDialog, setOpenMessageDialog] = React.useState(false)
+  const [openPreConvoDialog, setOpenPreConvoDialog] = React.useState(false)
+  const [selectedRecipient, setSelectedRecipient] = React.useState<PreConversationUser | null>(null)
+  const [followName, setFollowName]               = React.useState<'followers' | 'following'>('followers')
 
-  const trpc = useTRPC()
-
-  useInfiniteQuery(
-    trpc.user.getInfiniteFollowers.infiniteQueryOptions(
-      {
-        limit: 10,
-        userId: user.id,
-        cursor: undefined,
-      },
-      {
-        getNextPageParam: (lastPage) =>
-          lastPage.hasNextPage ? lastPage.cursor : undefined,
-      }
-    )
-  )
-
-  const showFollow = (followName: 'following' | 'followers') => {
+  const showFollow = (name: 'following' | 'followers') => {
     setOpenFollowDialog(true)
-    setFollowName(followName)
+    setFollowName(name)
   }
 
   return (
@@ -51,8 +36,6 @@ const ProfileHeader = ({ user }: { user: UserProfile }) => {
             priority
             className="object-cover"
           />
-
-          {/* Dark overlay */}
           <div className="absolute inset-0 bg-black/20" />
         </div>
 
@@ -72,30 +55,45 @@ const ProfileHeader = ({ user }: { user: UserProfile }) => {
             </div>
           </div>
 
-          {/* Edit button */}
-          <div className="min-h-[60px] flex justify-end pt-4">
-            {user.isSelf && (
+          {/* Action buttons */}
+          <div className="min-h-[60px] flex items-center justify-end gap-2 pt-4">
+            {user.isSelf ? (
+              // Own profile — edit only
               <Button
                 onClick={() => setOpen(true)}
                 className="rounded-full px-6 py-5 bg-gradient-to-r from-[#CDBDFF] to-[#7849FB] text-[#370096] font-semibold hover:opacity-90 transition"
               >
                 Edit Profile
               </Button>
+            ) : (
+              // Someone else's profile — message button
+              <Button
+                onClick={() => {
+                  setSelectedRecipient({
+                    id: user.id,
+                    name: user.name!,
+                    image: user.image ?? null,
+                  })
+                  setOpenPreConvoDialog(true)
+                }}
+                variant="outline"
+                className="flex items-center gap-2 rounded-full px-6 py-5 border-white/15 bg-white/5 text-white font-semibold hover:bg-white/10 transition"
+              >
+                <LuMessageSquare className="h-4 w-4" />
+                Message
+              </Button>
             )}
           </div>
 
           {/* User Info */}
-          <div className=" mt-8 md:mt-10">
+          <div className="mt-8 md:mt-10">
             <div className="flex flex-col gap-2">
               <div>
                 <h2 className="text-2xl capitalize md:text-4xl font-semibold text-white tracking-tight">
                   {user.name}
                 </h2>
-                <p className="truncate  text-zinc-500">
-                    @
-                    {user.name
-                      ?.toLowerCase()
-                      .replace(/\s/g, '')}
+                <p className="truncate text-zinc-500">
+                  @{user.name?.toLowerCase().replace(/\s/g, '')}
                 </p>
               </div>
 
@@ -141,18 +139,32 @@ const ProfileHeader = ({ user }: { user: UserProfile }) => {
         </div>
       </div>
 
+      {/* Edit profile dialog — own profile only */}
       <EditProfileDialog
         open={open}
         onOpenChange={setOpen}
         user={user}
       />
 
+      {/* Follow list dialog */}
       <ShowFollow
-        open={openfollowDialog}
+        open={openFollowDialog}
         setOpen={setOpenFollowDialog}
         followName={followName}
         user={user}
       />
+
+      {/* Direct message dialog — other profiles only */}
+      {!user.isSelf && (
+        <PreConversationDialog
+          open={openPreConvoDialog}
+          onOpenChange={setOpenPreConvoDialog}
+          recipient={selectedRecipient}
+          onBack={() => {
+            setOpenPreConvoDialog(false)
+          }}
+        />
+      )}
     </>
   )
 }

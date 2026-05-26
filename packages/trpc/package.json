@@ -6,7 +6,9 @@
         "./router":"./src/server.ts",
         "./auth":"./src/types/auth.ts",
         "./post":"./src/types/post.ts",
-        "./user":"./src/types/user.ts"
+        "./user":"./src/types/user.ts",
+        "./conversation":"./src/types/conversation.ts",
+        "./message":"./src/types/message.ts"
     },
     "devDependencies": {
         "@trpc/server": "^11.15.0",

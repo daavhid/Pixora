@@ -5,7 +5,13 @@ export const  createConversationSchema = z.object({
     participants:z.array(z.string()),
     title:z.string().nullable().optional(),
     avatarUrl:z.string().nullable().optional(),
-    type:z.enum(['dm','group']).default('dm')
+    type:z.enum(['dm','group']).default('dm'),
+
+})
+
+export const getConversationSchema = z.object({
+    participants:z.array(z.string()).nonempty(),
+    type:z.enum(['dm','group']).default('dm'),
 })
 
 export const conversationSchema = z.object({
@@ -14,8 +20,15 @@ export const conversationSchema = z.object({
     avatarUrl:z.string().nullable().optional(),
     title:z.string().nullable().optional(),
     conversationParticipants:z.array(z.object({
-        id:z.string()
+        id:z.string(),
+        status:z.enum(ConversationStatus),
+        user:z.object({
+            id:z.string(),
+            name:z.string().nullable().optional(),
+            image:z.url().nullable().optional(),
+        })
     })),
+    status:z.enum(ConversationStatus),
     createdById:z.string().nullable().optional(),
     lastMessage:z.object({
         id:z.string(),
@@ -38,11 +51,11 @@ export const conversationParticipantSchema = z.object({
         id:z.string(),
         content:z.string(),
         senderId:z.string(),
-        createdAt:z.iso.datetime()
+        createdAt:z.coerce.date()
     }).nullable().optional(),
-    lastReadAt:z.iso.datetime().nullable().optional(),
-    leftAt:z.iso.datetime().nullable().optional(),
-    createdAt:z.iso.datetime()
+    lastReadAt:z.coerce.date().nullable().optional(),
+    leftAt:z.coerce.date().nullable().optional(),
+    createdAt:z.coerce.date()
     
 })
 
@@ -63,7 +76,11 @@ export const messageSchema = z.object({
     id:z.string(),
     content:z.string(),
     createdAt:z.coerce.date(),
-    senderId:z.string(),
+    sender:z.object({
+        id:z.string(),
+        name:z.string().nullable(),
+        image:z.url().nullable().optional(),
+    }),
     conversationId:z.string(),
     messageAttachments:z.array(messageAttachment)
 })
@@ -79,13 +96,12 @@ export const createMessageSchema = z.object({
     thumbnail:z.url().nullable().optional(),
     createdAt:z.iso.datetime(),
     messageId:z.string().optional()
-    })),
+    })).nullable().optional(),
     conversation:createConversationSchema
 })
 
 export const createToggleConversationRequestSchema = z.object({
     conversationId:z.string(),
-    userId:z.string(),
     action:z.enum(ConversationStatus)
 })
 
@@ -96,15 +112,29 @@ export const messageQuerySchema = z.object({
     search:z.string().nullable().optional()
 })
 
+export const conversationQuerySchema = z.object({
+    cursor:z.string().nullable().optional(),
+    limit:z.number().int().default(10),
+    search:z.string().nullable().optional()
+})
+
 export const infiniteMessageSchema = z.object({
     messages:z.array(messageSchema),
     cursor:z.string().nullable().optional(),
     hasNextPage:z.boolean()
 })
+export const InfiniteConversationSchema = z.object({
+    conversations:z.array(conversationSchema),
+    cursor:z.string().nullable().optional(),
+    hasNextPage:z.boolean()
+})
 
 export type CreateConversation = z.infer<typeof createConversationSchema>
+export type GetConversation = z.infer<typeof getConversationSchema>
 export type Conversation = z.infer<typeof conversationSchema>
 export type ConversationParticipants = z.infer<typeof conversationParticipantSchema>
+export type conversationQuery = z.infer<typeof conversationQuerySchema>
+export type InfiniteConversations = z.infer<typeof InfiniteConversationSchema>
 
 
 export type Message = z.infer<typeof messageSchema>
